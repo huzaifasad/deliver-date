@@ -17,6 +17,7 @@ import {
   StateSelect,
   LanguageSelect,
 } from "react-country-state-city";
+import Timezone from "./Timezone";
 
 const PersonalDetails = ({ formData, setFormData, handleChange, setSelectedFile }) => {
   const account_type = Cookies.get("account_type");
@@ -25,7 +26,9 @@ const PersonalDetails = ({ formData, setFormData, handleChange, setSelectedFile 
   const [stateid, setstateid] = useState(0);
   const [lat,setlat]=useState('');
   const [lang,setlong]=useState('');
-  const [cites,setcit]=useState('')
+  const [cites,setcit]=useState()
+  const[latx,setlatx]=useState()
+  const[longx,setlongx]=useState()
   // Function to handle file upload
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -61,15 +64,20 @@ const PersonalDetails = ({ formData, setFormData, handleChange, setSelectedFile 
     return <option key={city} value={city}>{city}</option>;
   });
   const [timezone, setTimezone] = useState(""); // State to hold timezone
-const[statezone,setstatezone]=useState('')
+const[statezone,setstatezone]=useState()
   // Function to fetch timezone data
   const fetchTimezone = async () => {
     try {
+      console.log('logs console')
+      console.log(latx)
+      console.log(longx)
       const response = await axios.get(
-        `https://api.ipgeolocation.io/timezone?apiKey=cd43fa06609f4b8888ffaa585c33ab9f&lat=${lat}&long=${lang}`
+        `https://api.ipgeolocation.io/timezone?apiKey=cd43fa06609f4b8888ffaa585c33ab9f&lat=${latx}&long=${longx}`
         );
       // alert(cites)
-      // console.log(response.data.timezone)
+      console.log(response.data.timezone)
+      setstatezone(response.data.timezone)
+      console.log(statezone)
       ///
       // const responsex = await fetch(
       //   `http://api.geonames.org/timezoneJSON?lat=${lat}&lng=${lang}&username=khan321`
@@ -78,15 +86,15 @@ const[statezone,setstatezone]=useState('')
       // console.log(data)
       
       ///
-      const cityLookup = cityTimezones.lookupViaCity(`${statezone}`)
-      console.log(cityLookup)
-      if (cityLookup.length > 0) {
-        const timezone = cityLookup[0].timezone;
-        console.log(timezone);
-        setTimezone(timezone); // Output: America/Chicago
-      } else {
-        console.log('City not found');
-      }
+      // const cityLookup = cityTimezones.lookupViaCity(`${cites}`)
+      // console.log(cityLookup)
+      // if (cityLookup.length > 0) {
+      //   const timezone = cityLookup[0].timezone;
+      //   console.log(timezone);
+      //   setTimezone(timezone); // Output: America/Chicago
+      // } else {
+      //   console.log('City not found');
+      // }
       // alert(cityLookup)
       // Extract timezone data from the response
     
@@ -158,8 +166,9 @@ const[statezone,setstatezone]=useState('')
           />
           <div className="text-sm font-semibold leading-6 pl-[14px]">Access Google Calendar</div>
         </div>
-
+{/* the dialog time */}
         {/* Country and City Inputs */}
+        <Timezone/>
         <div className="sm:col-span-6">
           <div className="flex items-center justify-between flex-col min-[375px]:flex-row ">
             <div className="sm:col-span-3 w-[100%] sm:w-[50%] mr-2">
@@ -210,7 +219,7 @@ const[statezone,setstatezone]=useState('')
           value={formData.country}
         onChange={(e) => {
           setCountryid(e.id);
-          console.log(e.name)
+          // console.log(e.name)
         }}
         placeHolder="Select Country"
       />
@@ -219,9 +228,9 @@ const[statezone,setstatezone]=useState('')
         countryid={countryid}
         onChange={(e) => {
           setstateid(e.id);
-          console.log(e.name)
-          setstatezone(e.name)
-          fetchTimezone();
+          console.log(e.longitude)
+          // setstatezone(e.name)
+          // fetchTimezone();
         }}
         placeHolder="Select State"
       />
@@ -230,10 +239,14 @@ const[statezone,setstatezone]=useState('')
         countryid={countryid}
         stateid={stateid}
         onChange={(e) => {
-          console.log(e);
-          setlat(e.latitude)
-          setlat(e.longitude)
+          console.log("this is message");
+         console.log(e)
+         setlatx(e.latitude)
+         setlongx(e.longitude)
+         console.log(e.longitude)
+         console.log(e.latitude)
           setcit(e.name)
+          console.log(e.name)
           fetchTimezone()
         }}
         
@@ -241,6 +254,18 @@ const[statezone,setstatezone]=useState('')
       />
      
     </div>
+    <div>
+        {statezone && (
+          <h1
+            className="text-lg font-semibold text-gray-800 ml-16 flex"
+            value={statezone}
+            disabled={!statezone} // Disable button if statezone is not set
+           
+          >
+            Timezone by Latitude and Longitude: {statezone}
+          </h1>
+        )}
+      </div>
 
 
 {/* editing cities profiles  */}
